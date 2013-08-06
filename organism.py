@@ -10,6 +10,7 @@
 from util import Location
 from util import LOGGING
 from util import getOrganismsInRadius
+from util import getOrganismsInRadiusWithType
 import graphics
 import random
 import world
@@ -89,7 +90,9 @@ class Animal(Organism):
         self.destination = self.getNewDestination()
         self.timeSinceLastEaten = 0
         self.timeToHunger = 50
+        self.sightRadius = 30 # The radius within which the Animal can see food
         self.maxEatRadius = 8 # The radius within which the Animal can reach food
+        self.isChasingPrey = False # Is the Animal chasing a particular prey organism
         
     def draw(self):
         assert self.isAlive
@@ -103,17 +106,34 @@ class Animal(Organism):
     def doTurn(self):
         super().doTurn()
         self.takeStep()
+        self.timeSinceLastEaten += 1
+        assert not self.isChasingPrey or self.isHungry()
+        if self.isHungry():
+            atePrey = self.tryToEat()
+            if atePrey and self.isChasingPrey:
+                # If the Animal successfully chased down and ate prey, now it needs
+                # something else to do.
+                self.isChasingPrey = False
+                self.destination = self.getNewDestination()
+            
+        if self.isHungry() and (not self.isChasingPrey or self.hasArrivedAtDestination()):
+            # Look for prey to chase down.
+            potentialPrey = self.findPrey()
+            if len(potentialPrey) > 0:
+                # @todo Should we check whether the prey is alive?
+                self.destination = potentialPrey[0].location
+                self.isChasingPrey = True
+            else:
+                self.isChasingPrey = False
+                
         if self.hasArrivedAtDestination():
             self.destination = self.getNewDestination()
-        self.timeSinceLastEaten += 1
-        if self.isHungry():
-            self.tryToEat()
+            
         if LOGGING:
             print("Age of Animal is", self.age)
             
     # Take one step in the direction of the Animal's current destination
     def takeStep(self):
-        newLocation = Location()
         self.location.x += self.speed if self.location.x < self.destination.x \
                 else -self.speed if self.location.x > self.destination.x else 0
         self.location.y += self.speed if self.location.y < self.destination.y \
@@ -125,9 +145,13 @@ class Animal(Organism):
         return (abs(self.location.x - self.destination.x) < config.REACHED_LOCATION_TOLERANCE
                 and abs(self.location.y - self.destination.y) < config.REACHED_LOCATION_TOLERANCE)
 
-    # Returns a new, randomly generated location for the Animal
+    # Returns a new location for the Animal.
     def getNewDestination(self):
         return world.randomLocation()
+        
+    # Returns a list of prey organisms within sight.
+    def findPrey(self):
+        return getOrganismsInRadiusWithType(world.organisms, self.location, self.sightRadius, Plant)
         
     # Returns true if the Animal will try to eat if there is food available
     def isHungry(self):
@@ -135,11 +159,14 @@ class Animal(Organism):
         
     # If there is a prey Organism within range of this Animal, remove it from the world
     # and set this Animal's timeSinceLastEaten to 0.
+    # Returns True if prey was successfully eaten, False otherwise.
     def tryToEat(self):
-        nearbyOrganisms = getOrganismsInRadius(world.organisms, self.location, self.maxEatRadius)
+        nearbyOrganisms = getOrganismsInRadiusWithType(world.organisms, self.location, self.maxEatRadius, Plant)
         for theOrganism in nearbyOrganisms:
-            if isinstance(theOrganism, Plant) and theOrganism.isAlive:
+            if theOrganism.isAlive:
                 # Eat the unfortunate prey
                 theOrganism.isAlive = False
                 self.timeSinceLastEaten = 0
+                return True
+        return False
     
