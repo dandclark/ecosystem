@@ -10,7 +10,7 @@
 from util import Location
 from util import LOGGING
 from util import getOrganismsInRadius
-from util import getOrganismsInRadiusWithType
+from util import getLivingOrganismsInRadiusWithType
 import graphics
 import random
 import world
@@ -90,14 +90,17 @@ class Animal(Organism):
         self.destination = self.getNewDestination()
         self.timeSinceLastEaten = 0
         self.timeToHunger = 50
-        self.sightRadius = 30 # The radius within which the Animal can see food
+        self.sightRadius = 50 # The radius within which the Animal can see food
         self.maxEatRadius = 8 # The radius within which the Animal can reach food
         self.isChasingPrey = False # Is the Animal chasing a particular prey organism
         
     def draw(self):
         assert self.isAlive
-        if self.isHungry():
+        assert not self.isChasingPrey or self.isHungry()
+        if self.isHungry() and self.isChasingPrey:
             color = graphics.COLORS['red']
+        elif self.isHungry():
+            color = graphics.COLORS['grey']
         else:
             color = graphics.COLORS['blue']
         graphics.pygame.draw.circle(graphics.screen, color,
@@ -120,7 +123,6 @@ class Animal(Organism):
             # Look for prey to chase down.
             potentialPrey = self.findPrey()
             if len(potentialPrey) > 0:
-                # @todo Should we check whether the prey is alive?
                 self.destination = potentialPrey[0].location
                 self.isChasingPrey = True
             else:
@@ -149,9 +151,9 @@ class Animal(Organism):
     def getNewDestination(self):
         return world.randomLocation()
         
-    # Returns a list of prey organisms within sight.
+    # Returns a list of living prey organisms within sight.
     def findPrey(self):
-        return getOrganismsInRadiusWithType(world.organisms, self.location, self.sightRadius, Plant)
+        return getLivingOrganismsInRadiusWithType(world.organisms, self.location, self.sightRadius, Plant)
         
     # Returns true if the Animal will try to eat if there is food available
     def isHungry(self):
@@ -161,12 +163,12 @@ class Animal(Organism):
     # and set this Animal's timeSinceLastEaten to 0.
     # Returns True if prey was successfully eaten, False otherwise.
     def tryToEat(self):
-        nearbyOrganisms = getOrganismsInRadiusWithType(world.organisms, self.location, self.maxEatRadius, Plant)
-        for theOrganism in nearbyOrganisms:
-            if theOrganism.isAlive:
-                # Eat the unfortunate prey
-                theOrganism.isAlive = False
-                self.timeSinceLastEaten = 0
-                return True
-        return False
+        nearbyOrganisms = getLivingOrganismsInRadiusWithType(world.organisms, self.location, self.maxEatRadius, Plant)
+        if len(nearbyOrganisms) > 0:
+            # Eat the unfortunate prey
+            nearbyOrganisms[0].isAlive = False
+            self.timeSinceLastEaten = 0
+            return True
+        else:
+            return False
     

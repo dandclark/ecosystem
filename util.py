@@ -33,11 +33,12 @@ def getOrganismsInRadius(organisms, location, radius):
             organismsInRadius.append(organism)
     return organismsInRadius
     
-# From the array of organisms, returns an array of organisms within the given radius
+# From the array of organisms, returns an array of living organisms within the given radius
 # from the given location who have the given type.
-def getOrganismsInRadiusWithType(organisms, location, radius, type):
+def getLivingOrganismsInRadiusWithType(organisms, location, radius, type):
     organismsInRadius = []
     for organism in organisms:
-        if isinstance(organism, type) and organism.location.distanceFrom(location) <= radius:
+        if isinstance(organism, type) and organism.isAlive and \
+                organism.location.distanceFrom(location) <= radius:
             organismsInRadius.append(organism)
     return organismsInRadius
