@@ -29,9 +29,39 @@ class Organism(metaclass=abc.ABCMeta):
     def draw(self):
         pass
         
+    # Returns an instance of the Organism (a non-abstract subclass).
+    # @todo Is there a more pythonic way to do this?
+    @abc.abstractmethod
+    def createOffspring(self):
+        pass
+        
     # Run one unit of time for the organism
     def doTurn(self):
         self.age += 1
+        
+        # Returns true if should reproduce this turn, false othewise.
+    def shouldReproduce(self):
+        timeSinceLastReproduction = self.age - self.lastReproductionAge
+        probabilityOfReproduction = min(1.0, timeSinceLastReproduction / self.maxTimeBetweenReproduction)
+        return random.random() < probabilityOfReproduction
+        
+        
+    # Attempt to place a new Organism at a nearby location.  If it's too crowded
+    # to place another Organism, give up after a specified number of attempts.
+    def reproduce(self):
+        newOrganism = self.createOffspring()
+        attemptsToReproduce = 0
+        while attemptsToReproduce < self.maxAttemptsToReproduce:
+            potentialLocation = world.randomLocationInCircle(self.location, self.reproductionRadius)
+            if LOGGING:
+                print(self, "attempting to reproduce at", potentialLocation)
+            if world.canFit(newOrganism, potentialLocation):
+                newOrganism = self.createOffspring()
+                newOrganism.location = potentialLocation
+                world.organisms.append(newOrganism)
+                return
+            attemptsToReproduce += 1
+        
         
 class Plant(Organism):
     def __init__(self):
@@ -58,28 +88,8 @@ class Plant(Organism):
             self.lastReproductionAge = self.age
             self.reproduce()
         
-    # Returns true if should reproduce this turn, false othewise.
-    def shouldReproduce(self):
-        timeSinceLastReproduction = self.age - self.lastReproductionAge
-        probabilityOfReproduction = min(1.0, timeSinceLastReproduction / self.maxTimeBetweenReproduction)
-        return random.random() < probabilityOfReproduction
-        
-        
-    # Attempt to place a new plant at a nearby location.  If it's too crowded
-    # to place another plant, give up after a specified number of attempts.
-    def reproduce(self):
-        newPlant = Plant()
-        attemptsToReproduce = 0
-        while attemptsToReproduce < self.maxAttemptsToReproduce:
-            potentialLocation = world.randomLocationInCircle(self.location, self.reproductionRadius)
-            if LOGGING:
-                print(self, "attempting to reproduce at", potentialLocation)
-            if world.canFit(newPlant, potentialLocation):
-                newPlant = Plant()
-                newPlant.location = potentialLocation
-                world.organisms.append(newPlant)
-                return
-            attemptsToReproduce += 1
+    def createOffspring(self):
+        return Plant()
 
         
 class Animal(Organism):
@@ -93,6 +103,11 @@ class Animal(Organism):
         self.sightRadius = 50 # The radius within which the Animal can see food
         self.maxEatRadius = 8 # The radius within which the Animal can reach food
         self.isChasingPrey = False # Is the Animal chasing a particular prey organism
+        
+        self.lastReproductionAge = 0
+        self.maxTimeBetweenReproduction = 150000
+        self.reproductionRadius = 20 # Radius within which children are created
+        self.maxAttemptsToReproduce = 1
         
     def draw(self):
         assert self.isAlive
@@ -108,6 +123,13 @@ class Animal(Organism):
             
     def doTurn(self):
         super().doTurn()
+        
+        if self.shouldReproduce():
+            if LOGGING:
+                print("Animal", self, "reproducing")
+            self.lastReproductionAge = self.age
+            self.reproduce()
+        
         self.takeStep()
         self.timeSinceLastEaten += 1
         assert not self.isChasingPrey or self.isHungry()
@@ -172,3 +194,5 @@ class Animal(Organism):
         else:
             return False
     
+    def createOffspring(self):
+        return Animal()

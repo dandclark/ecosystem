@@ -32,6 +32,6 @@ if __name__ == "__main__":
         world.doTurn()
         
         graphics.advanceClock()
-        print("In main game loop")
+        # print("In main game loop")
         
     graphics.quit()
