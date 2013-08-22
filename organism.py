@@ -66,11 +66,11 @@ class Organism(metaclass=abc.ABCMeta):
 class Plant(Organism):
     def __init__(self):
         super().__init__()
-        self.size = 4
+        self.size = config.Plant.SIZE
         self.lastReproductionAge = 0
-        self.maxTimeBetweenReproduction = 50000
-        self.reproductionRadius = 20 # Radius within which children are created
-        self.maxAttemptsToReproduce = 1
+        self.maxTimeBetweenReproduction = config.Plant.MAX_TIME_BETWEEN_REPRODUCTION
+        self.reproductionRadius = config.Plant.REPRODUCTION_RADIUS
+        self.maxAttemptsToReproduce = config.Plant.MAX_ATTEMPTS_TO_REPRODUCE
         
     def draw(self):
         assert self.isAlive
@@ -95,19 +95,20 @@ class Plant(Organism):
 class Animal(Organism):
     def __init__(self):
         super().__init__()
-        self.size = 8
-        self.speed = 1
+        self.size = config.Animal.SIZE
+        self.speed = config.Animal.SPEED
         self.destination = self.getNewDestination()
         self.timeSinceLastEaten = 0
-        self.timeToHunger = 50
-        self.sightRadius = 50 # The radius within which the Animal can see food
-        self.maxEatRadius = 8 # The radius within which the Animal can reach food
+        self.timeToHunger = config.Animal.TIME_TO_HUNGER
+        self.timeToStarvation = config.Animal.TIME_TO_STARVATION
+        self.sightRadius = config.Animal.SIGHT_RADIUS # The radius within which the Animal can see food
+        self.maxEatRadius = config.Animal.MAX_EAT_RADIUS # The radius within which the Animal can reach food
         self.isChasingPrey = False # Is the Animal chasing a particular prey organism
         
         self.lastReproductionAge = 0
-        self.maxTimeBetweenReproduction = 150000
-        self.reproductionRadius = 20 # Radius within which children are created
-        self.maxAttemptsToReproduce = 1
+        self.maxTimeBetweenReproduction = config.Animal.MAX_TIME_BETWEEN_REPRODUCTION
+        self.reproductionRadius = config.Animal.REPRODUCTION_RADIUS # Radius within which children are created
+        self.maxAttemptsToReproduce = config.Animal.MAX_ATTEMPTS_TO_REPRODUCE
         
     def draw(self):
         assert self.isAlive
@@ -115,7 +116,10 @@ class Animal(Organism):
         if self.isHungry() and self.isChasingPrey:
             color = graphics.COLORS['red']
         elif self.isHungry():
-            color = graphics.COLORS['grey']
+            # Fade between colors as the Animal gets hungrier
+            color = graphics.getTransitionColor(graphics.COLORS['blue'],
+                    graphics.COLORS['grey'],
+                    float(self.timeSinceLastEaten) / self.timeToStarvation)
         else:
             color = graphics.COLORS['blue']
         graphics.pygame.draw.circle(graphics.screen, color,
@@ -150,6 +154,8 @@ class Animal(Organism):
             else:
                 self.isChasingPrey = False
                 
+        self.dieIfStarved()
+                
         if self.hasArrivedAtDestination():
             self.destination = self.getNewDestination()
             
@@ -180,6 +186,12 @@ class Animal(Organism):
     # Returns true if the Animal will try to eat if there is food available
     def isHungry(self):
         return self.timeSinceLastEaten >= self.timeToHunger
+        
+    # End the Animal's life if it has starved
+    def dieIfStarved(self):
+        if self.timeSinceLastEaten >= self.timeToStarvation:
+            assert self.isHungry()
+            self.isAlive = False
         
     # If there is a prey Organism within range of this Animal, remove it from the world
     # and set this Animal's timeSinceLastEaten to 0.

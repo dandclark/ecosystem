@@ -74,3 +74,7 @@ def advanceClock():
     assert initialized, "Graphics should be initialized"
     assert not clock is None, "Should have a screen"
     clock.tick(20)
+    
+def getTransitionColor(startColor, endColor, transitionPercentage):
+    deltaColor = [end - start for end, start in zip(endColor, startColor)]
+    return [start + delta * transitionPercentage for start, delta in zip(startColor, deltaColor)]
