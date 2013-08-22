@@ -93,22 +93,45 @@ class Plant(Organism):
 
         
 class Animal(Organism):
+    # Take one step in the direction of the Animal's current destination
+    def takeStep(self):
+        self.location.x += self.speed if self.location.x < self.destination.x \
+                else -self.speed if self.location.x > self.destination.x else 0
+        self.location.y += self.speed if self.location.y < self.destination.y \
+                else -self.speed if self.location.y > self.destination.y else 0
+    
+    # Returns true if the Animal has arrived at their destination, false otherwise
+    def hasArrivedAtDestination(self):
+        return (abs(self.location.x - self.destination.x) < config.Animal.REACHED_LOCATION_TOLERANCE
+                and abs(self.location.y - self.destination.y) < config.Animal.REACHED_LOCATION_TOLERANCE)
+    
+    # Returns true if the Herbivore will try to eat if there is food available
+    def isHungry(self):
+        return self.timeSinceLastEaten >= self.timeToHunger
+    
+    # End the Animal's life if it has starved
+    def dieIfStarved(self):
+        if self.timeSinceLastEaten >= self.timeToStarvation:
+            assert self.isHungry()
+            self.isAlive = False
+    
+class Herbivore(Animal):
     def __init__(self):
         super().__init__()
-        self.size = config.Animal.SIZE
-        self.speed = config.Animal.SPEED
+        self.size = config.Herbivore.SIZE
+        self.speed = config.Herbivore.SPEED
         self.destination = self.getNewDestination()
         self.timeSinceLastEaten = 0
-        self.timeToHunger = config.Animal.TIME_TO_HUNGER
-        self.timeToStarvation = config.Animal.TIME_TO_STARVATION
-        self.sightRadius = config.Animal.SIGHT_RADIUS # The radius within which the Animal can see food
-        self.maxEatRadius = config.Animal.MAX_EAT_RADIUS # The radius within which the Animal can reach food
-        self.isChasingPrey = False # Is the Animal chasing a particular prey organism
+        self.timeToHunger = config.Herbivore.TIME_TO_HUNGER
+        self.timeToStarvation = config.Herbivore.TIME_TO_STARVATION
+        self.sightRadius = config.Herbivore.SIGHT_RADIUS # The radius within which the Herbivore can see food
+        self.maxEatRadius = config.Herbivore.MAX_EAT_RADIUS # The radius within which the Herbivore can reach food
+        self.isChasingPrey = False # Is the Herbivore chasing a particular prey organism
         
         self.lastReproductionAge = 0
-        self.maxTimeBetweenReproduction = config.Animal.MAX_TIME_BETWEEN_REPRODUCTION
-        self.reproductionRadius = config.Animal.REPRODUCTION_RADIUS # Radius within which children are created
-        self.maxAttemptsToReproduce = config.Animal.MAX_ATTEMPTS_TO_REPRODUCE
+        self.maxTimeBetweenReproduction = config.Herbivore.MAX_TIME_BETWEEN_REPRODUCTION
+        self.reproductionRadius = config.Herbivore.REPRODUCTION_RADIUS # Radius within which children are created
+        self.maxAttemptsToReproduce = config.Herbivore.MAX_ATTEMPTS_TO_REPRODUCE
         
     def draw(self):
         assert self.isAlive
@@ -116,7 +139,7 @@ class Animal(Organism):
         if self.isHungry() and self.isChasingPrey:
             color = graphics.COLORS['red']
         elif self.isHungry():
-            # Fade between colors as the Animal gets hungrier
+            # Fade between colors as the Herbivore gets hungrier
             color = graphics.getTransitionColor(graphics.COLORS['blue'],
                     graphics.COLORS['grey'],
                     float(self.timeSinceLastEaten) / self.timeToStarvation)
@@ -130,7 +153,7 @@ class Animal(Organism):
         
         if self.shouldReproduce():
             if LOGGING:
-                print("Animal", self, "reproducing")
+                print("Herbivore", self, "reproducing")
             self.lastReproductionAge = self.age
             self.reproduce()
         
@@ -140,7 +163,7 @@ class Animal(Organism):
         if self.isHungry():
             atePrey = self.tryToEat()
             if atePrey and self.isChasingPrey:
-                # If the Animal successfully chased down and ate prey, now it needs
+                # If the Herbivore successfully chased down and ate prey, now it needs
                 # something else to do.
                 self.isChasingPrey = False
                 self.destination = self.getNewDestination()
@@ -160,41 +183,18 @@ class Animal(Organism):
             self.destination = self.getNewDestination()
             
         if LOGGING:
-            print("Age of Animal is", self.age)
+            print("Age of Herbivore is", self.age)
             
-    # Take one step in the direction of the Animal's current destination
-    def takeStep(self):
-        self.location.x += self.speed if self.location.x < self.destination.x \
-                else -self.speed if self.location.x > self.destination.x else 0
-        self.location.y += self.speed if self.location.y < self.destination.y \
-                else -self.speed if self.location.y > self.destination.y else 0
-    
-        
-    # Returns true if the Animal has arrived at their destination, false otherwise
-    def hasArrivedAtDestination(self):
-        return (abs(self.location.x - self.destination.x) < config.REACHED_LOCATION_TOLERANCE
-                and abs(self.location.y - self.destination.y) < config.REACHED_LOCATION_TOLERANCE)
-
-    # Returns a new location for the Animal.
+    # Returns a new location for the Herbivore.
     def getNewDestination(self):
         return world.randomLocation()
         
     # Returns a list of living prey organisms within sight.
     def findPrey(self):
         return getLivingOrganismsInRadiusWithType(world.organisms, self.location, self.sightRadius, Plant)
-        
-    # Returns true if the Animal will try to eat if there is food available
-    def isHungry(self):
-        return self.timeSinceLastEaten >= self.timeToHunger
-        
-    # End the Animal's life if it has starved
-    def dieIfStarved(self):
-        if self.timeSinceLastEaten >= self.timeToStarvation:
-            assert self.isHungry()
-            self.isAlive = False
-        
-    # If there is a prey Organism within range of this Animal, remove it from the world
-    # and set this Animal's timeSinceLastEaten to 0.
+                
+    # If there is a prey Organism within range of this Herbivore, remove it from the world
+    # and set this Herbivore's timeSinceLastEaten to 0.
     # Returns True if prey was successfully eaten, False otherwise.
     def tryToEat(self):
         nearbyOrganisms = getLivingOrganismsInRadiusWithType(world.organisms, self.location, self.maxEatRadius, Plant)
@@ -207,4 +207,4 @@ class Animal(Organism):
             return False
     
     def createOffspring(self):
-        return Animal()
+        return Herbivore()

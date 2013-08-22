@@ -19,7 +19,7 @@ if __name__ == "__main__":
     graphics.initialize()
     
     world.spawnPlants(config.NUM_STARTING_PLANTS)
-    world.spawnAnimals(config.NUM_STARTING_ANIMALS)
+    world.spawnHerbivores(config.NUM_STARTING_HERBIVORES)
     
     shouldContinue = True
     

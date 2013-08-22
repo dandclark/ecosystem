@@ -43,7 +43,7 @@ def randomLocationInCircle(center, radius):
     randomLocation.y = max(0, min(config.WORLD_SIZE[1], randomLocation.y))
     return randomLocation
     
-# @todo[DDC] spawnPlants and spawnAnimals should be refactored.  There's going to be
+# @todo[DDC] spawnPlants and spawnHerbivores should be refactored.  There's going to be
 # a lot more of these...
 
 # Spawn the specified number of Plants
@@ -63,27 +63,27 @@ def spawnPlants(numberToSpawn):
     if LOGGING:
         print("Spawned", numberToSpawn, "Plants")
     
-# Spawn the specified number of Animals
-def spawnAnimals(numberToSpawn):
+# Spawn the specified number of Herbivores
+def spawnHerbivores(numberToSpawn):
     for i in range(numberToSpawn):
-        newAnimal = organism.Animal()
+        newHerbivore = organism.Herbivore()
         while True:
             potentialLocation = randomLocation()
             if LOGGING:
                 print("Attempting to spawn at", potentialLocation)
-            if canFit(newAnimal, potentialLocation):
-                newAnimal.location = potentialLocation
+            if canFit(newHerbivore, potentialLocation):
+                newHerbivore.location = potentialLocation
                 break
             elif LOGGING:
                 print("Can't draw here; space is occupied")
         if LOGGING:
-            print("Spawning new animal at", newAnimal.location)
-        organisms.append(newAnimal)
+            print("Spawning new Herbivore at", newHerbivore.location)
+        organisms.append(newHerbivore)
     if LOGGING:
-        print("Spawned", numberToSpawn, "Animals")
+        print("Spawned", numberToSpawn, "Herbivores")
         
 # Remove all dead organisms from the organism array
-# @consider doing this differently.  We're doing a full copy of the animal array
+# @consider doing this differently.  We're doing a full copy of the Herbivore array
 # every clock tick...might be better to either store these as a linked list or do
 # this purge less frequently.
 def purgeDeadOrganisms():
