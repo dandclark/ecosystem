@@ -13,7 +13,7 @@ WORLD_SIZE = (300, 200)
 
 NUM_STARTING_PLANTS = 12
 NUM_STARTING_HERBIVORES = 5
-
+NUM_STARTING_CARNIVORES = 2
 
 
 # Graphics settings
@@ -41,4 +41,15 @@ class Herbivore(Animal):
     MAX_EAT_RADIUS = SIZE # The radius within which the Herbivore can reach food
 
     MAX_TIME_BETWEEN_REPRODUCTION = 150000
+    REPRODUCTION_RADIUS = 20 # Radius within which children are created
+    
+class Carnivore(Animal):
+    SIZE = 8
+    SPEED = 2
+    TIME_TO_HUNGER = 100 # Time until Carnivore becomes hungry after it has eaten
+    TIME_TO_STARVATION = 500 # Time until Carnivore starves after it has eaten
+    SIGHT_RADIUS = 70 # The radius within which the Carnivore can see food
+    MAX_EAT_RADIUS = SIZE # The radius within which the Carnivore can reach food
+
+    MAX_TIME_BETWEEN_REPRODUCTION = 300000
     REPRODUCTION_RADIUS = 20 # Radius within which children are created

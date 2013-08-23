@@ -11,6 +11,7 @@ from organism import Organism
 import world
 import graphics
 import config
+import organism
 from util import LOGGING
 
 if __name__ == "__main__":
@@ -20,6 +21,7 @@ if __name__ == "__main__":
     
     world.spawnPlants(config.NUM_STARTING_PLANTS)
     world.spawnHerbivores(config.NUM_STARTING_HERBIVORES)
+    world.spawnOrganisms(organism.Carnivore, config.NUM_STARTING_CARNIVORES)
     
     shouldContinue = True
     

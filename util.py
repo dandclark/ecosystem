@@ -9,7 +9,7 @@
 
 import math
 
-LOGGING = False
+LOGGING = True
 
 class Location:
     def __init__(self, x=0, y=0):

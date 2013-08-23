@@ -43,8 +43,24 @@ def randomLocationInCircle(center, radius):
     randomLocation.y = max(0, min(config.WORLD_SIZE[1], randomLocation.y))
     return randomLocation
     
-# @todo[DDC] spawnPlants and spawnHerbivores should be refactored.  There's going to be
+# @todo[DDC] spawnPlants and spawnAnimals should be refactored.  There's going to be
 # a lot more of these...
+
+def spawnOrganisms(organismType, numberToSpawn):
+    for i in range(numberToSpawn):
+        newOrganism = organismType()
+        while True:
+            potentialLocation = randomLocation()
+            if LOGGING:
+                print("Attempting to spawn", organismType.__name__, "at", potentialLocation)
+            if canFit(newOrganism, potentialLocation):
+                newOrganism.location = potentialLocation
+                break
+        if LOGGING:
+            print("Spawning new", organismType.__name__, "at", newOrganism.location)
+        organisms.append(newOrganism)
+    if LOGGING:
+        print("Spawned", numberToSpawn, organismType.__name__ + "s")
 
 # Spawn the specified number of Plants
 def spawnPlants(numberToSpawn):

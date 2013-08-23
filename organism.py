@@ -105,7 +105,7 @@ class Animal(Organism):
         return (abs(self.location.x - self.destination.x) < config.Animal.REACHED_LOCATION_TOLERANCE
                 and abs(self.location.y - self.destination.y) < config.Animal.REACHED_LOCATION_TOLERANCE)
     
-    # Returns true if the Herbivore will try to eat if there is food available
+    # Returns true if the Animal will try to eat if there is food available
     def isHungry(self):
         return self.timeSinceLastEaten >= self.timeToHunger
     
@@ -208,3 +208,48 @@ class Herbivore(Animal):
     
     def createOffspring(self):
         return Herbivore()
+        
+class Carnivore(Animal):
+    def __init__(self):
+        super().__init__()
+        self.size = config.Carnivore.SIZE
+        self.speed = config.Carnivore.SPEED
+        self.destination = self.getNewDestination()
+        self.timeSinceLastEaten = 0
+        self.timeToHunger = config.Carnivore.TIME_TO_HUNGER
+        self.timeToStarvation = config.Carnivore.TIME_TO_STARVATION
+        self.sightRadius = config.Carnivore.SIGHT_RADIUS # The radius within which the Carnivore can see food
+        self.maxEatRadius = config.Carnivore.MAX_EAT_RADIUS # The radius within which the Carnivore can reach food
+        self.isChasingPrey = False # Is the Carnivore chasing a particular prey organism
+        
+        self.lastReproductionAge = 0
+        self.maxTimeBetweenReproduction = config.Carnivore.MAX_TIME_BETWEEN_REPRODUCTION
+        self.reproductionRadius = config.Carnivore.REPRODUCTION_RADIUS # Radius within which children are created
+        self.maxAttemptsToReproduce = config.Carnivore.MAX_ATTEMPTS_TO_REPRODUCE
+    
+    def draw(self):
+        assert self.isAlive
+        assert not self.isChasingPrey or self.isHungry()
+        if self.isHungry() and self.isChasingPrey:
+            color = graphics.COLORS['red']
+        elif self.isHungry():
+            # Fade between colors as the Carnivore gets hungrier
+            color = graphics.getTransitionColor(graphics.COLORS['blue'],
+                    graphics.COLORS['grey'],
+                    float(self.timeSinceLastEaten) / self.timeToStarvation)
+        else:
+            color = graphics.COLORS['blue']
+        graphics.pygame.draw.circle(graphics.screen, color,
+            [self.location.x, self.location.y], self.size)
+    
+    # Returns a new location for the Herbivore.
+    def getNewDestination(self):
+        return world.randomLocation()
+    
+    # Returns a list of living prey organisms within sight.
+    def findPrey(self):
+        return getLivingOrganismsInRadiusWithType(world.organisms, self.location, self.sightRadius, Herbivore)
+    
+    def createOffspring(self):
+        return Carnivore()
+    
