@@ -8,14 +8,14 @@
 #
 
 
-# WORLD_SIZE = (700, 500)
-WORLD_SIZE = (300, 200)
+WORLD_SIZE = (700, 500)
+#WORLD_SIZE = (300, 200)
 
 # NUM_STARTING_PLANTS = 12
 # NUM_STARTING_HERBIVORES = 5
 # NUM_STARTING_CARNIVORES = 2
 
-NUM_STARTING_PLANTS = 0
+NUM_STARTING_PLANTS = 15
 NUM_STARTING_HERBIVORES = 5
 NUM_STARTING_CARNIVORES = 2
 
@@ -38,21 +38,21 @@ class Animal(Organism):
 class Herbivore(Animal):
     SIZE = 6
     SPEED = 1
-    TIME_TO_HUNGER = 50 # Time until Herbivore becomes hungry after it has eaten
-    TIME_TO_STARVATION = 200 # Time until Herbivore starves after it has eaten
+    TIME_TO_HUNGER = 100 # Time until Herbivore becomes hungry after it has eaten
+    TIME_TO_STARVATION = 400 # Time until Herbivore starves after it has eaten
     SIGHT_RADIUS = 50 # The radius within which the Herbivore can see food
     MAX_EAT_RADIUS = SIZE # The radius within which the Herbivore can reach food
 
-    MAX_TIME_BETWEEN_REPRODUCTION = 150000
+    MAX_TIME_BETWEEN_REPRODUCTION = 200000
     REPRODUCTION_RADIUS = 20 # Radius within which children are created
     
 class Carnivore(Animal):
     SIZE = 8
     SPEED = 2
-    TIME_TO_HUNGER = 100 # Time until Carnivore becomes hungry after it has eaten
-    TIME_TO_STARVATION = 500 # Time until Carnivore starves after it has eaten
+    TIME_TO_HUNGER = 350 # Time until Carnivore becomes hungry after it has eaten
+    TIME_TO_STARVATION = 750 # Time until Carnivore starves after it has eaten
     SIGHT_RADIUS = 70 # The radius within which the Carnivore can see food
     MAX_EAT_RADIUS = SIZE # The radius within which the Carnivore can reach food
 
-    MAX_TIME_BETWEEN_REPRODUCTION = 300000
+    MAX_TIME_BETWEEN_REPRODUCTION = 600000
     REPRODUCTION_RADIUS = 20 # Radius within which children are created

@@ -131,7 +131,7 @@ class Herbivore(Animal):
         self.timeToStarvation = config.Herbivore.TIME_TO_STARVATION
         self.sightRadius = config.Herbivore.SIGHT_RADIUS # The radius within which the Herbivore can see food
         self.maxEatRadius = config.Herbivore.MAX_EAT_RADIUS # The radius within which the Herbivore can reach food
-        self.isChasingPrey = False # Is the Herbivore chasing a particular prey organism
+        self.prey = None # Is the Herbivore chasing a particular prey organism
         
         self.lastReproductionAge = 0
         self.maxTimeBetweenReproduction = config.Herbivore.MAX_TIME_BETWEEN_REPRODUCTION
@@ -140,9 +140,12 @@ class Herbivore(Animal):
         
     def draw(self):
         assert self.isAlive
-        assert not self.isChasingPrey or self.isHungry()
-        if self.isHungry() and self.isChasingPrey:
-            color = graphics.COLORS['red']
+        assert self.prey is None or self.isHungry()
+        if self.isHungry() and not self.prey is None:
+            color = graphics.COLORS['blue']
+            graphics.pygame.draw.line(graphics.screen, graphics.COLORS['red'],
+                    [self.location.x, self.location.y],
+                    [self.prey.location.x, self.prey.location.y], 1)
         elif self.isHungry():
             # Fade between colors as the Herbivore gets hungrier
             color = graphics.getTransitionColor(graphics.COLORS['blue'],
@@ -162,25 +165,30 @@ class Herbivore(Animal):
             self.lastReproductionAge = self.age
             self.reproduce()
         
+        # Stop chasing prey if it's not there anymore
+        if not self.prey is None:
+            if not self.prey.isAlive:
+                self.prey = None
+        
         self.takeStep()
         self.timeSinceLastEaten += 1
-        assert not self.isChasingPrey or self.isHungry()
+        assert self.prey is None or self.isHungry()
         if self.isHungry():
             atePrey = self.tryToEat()
-            if atePrey and self.isChasingPrey:
+            if atePrey and not self.prey is None:
                 # If the Herbivore successfully chased down and ate prey, now it needs
                 # something else to do.
-                self.isChasingPrey = False
+                self.prey = None
                 self.destination = self.getNewDestination()
             
-        if self.isHungry() and (not self.isChasingPrey or self.hasArrivedAtDestination()):
+        if self.isHungry() and (self.prey is None or self.hasArrivedAtDestination()):
             # Look for prey to chase down.
             potentialPrey = self.findPrey()
             if len(potentialPrey) > 0:
                 self.destination = potentialPrey[0].location
-                self.isChasingPrey = True
+                self.prey = potentialPrey[0]
             else:
-                self.isChasingPrey = False
+                self.prey = None
                 
         self.dieIfStarved()
                 
@@ -234,9 +242,12 @@ class Carnivore(Animal):
     
     def draw(self):
         assert self.isAlive
-        assert self.prey == None or self.isHungry()
-        if self.isHungry() and self.prey != None:
-            color = graphics.COLORS['red']
+        assert self.prey is None or self.isHungry()
+        if self.isHungry() and not self.prey is None:
+            color = graphics.COLORS['blue']
+            graphics.pygame.draw.line(graphics.screen, graphics.COLORS['red'],
+                    [self.location.x, self.location.y],
+                    [self.prey.location.x, self.prey.location.y], 1)
         elif self.isHungry():
             # Fade between colors as the Carnivore gets hungrier
             color = graphics.getTransitionColor(graphics.COLORS['blue'],
@@ -257,7 +268,7 @@ class Carnivore(Animal):
             self.reproduce()
         
         # Continue chasing prey
-        if self.prey != None:
+        if not self.prey is None:
             if not self.prey.isAlive:
                 self.prey = None
             else:
@@ -265,7 +276,7 @@ class Carnivore(Animal):
         
         self.takeStep()
         self.timeSinceLastEaten += 1
-        assert self.prey == None or self.isHungry()
+        assert self.prey is None or self.isHungry()
         if self.isHungry():
             atePrey = self.tryToEat()
             if atePrey:
@@ -273,14 +284,14 @@ class Carnivore(Animal):
                 # something else to do.
                 self.destination = self.getNewDestination()
             
-        if self.isHungry() and (self.prey == None or self.hasArrivedAtDestination()):
+        if self.isHungry() and (self.prey is None or self.hasArrivedAtDestination()):
             # Look for prey to chase down.
             potentialPrey = self.findPrey()
             if len(potentialPrey) > 0:
                 self.prey = potentialPrey[0]
                 self.destination = self.prey.location
             else:
-                assert self.prey == None or self.hasArrivedAtDestina
+                assert self.prey is None or self.hasArrivedAtDestina
                 self.prey = None
                 
         self.dieIfStarved()
