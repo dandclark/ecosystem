@@ -220,17 +220,17 @@ class Carnivore(Animal):
         self.timeToStarvation = config.Carnivore.TIME_TO_STARVATION
         self.sightRadius = config.Carnivore.SIGHT_RADIUS # The radius within which the Carnivore can see food
         self.maxEatRadius = config.Carnivore.MAX_EAT_RADIUS # The radius within which the Carnivore can reach food
-        self.isChasingPrey = False # Is the Carnivore chasing a particular prey organism
         
         self.lastReproductionAge = 0
         self.maxTimeBetweenReproduction = config.Carnivore.MAX_TIME_BETWEEN_REPRODUCTION
         self.reproductionRadius = config.Carnivore.REPRODUCTION_RADIUS # Radius within which children are created
         self.maxAttemptsToReproduce = config.Carnivore.MAX_ATTEMPTS_TO_REPRODUCE
+        self.prey = None
     
     def draw(self):
         assert self.isAlive
-        assert not self.isChasingPrey or self.isHungry()
-        if self.isHungry() and self.isChasingPrey:
+        assert self.prey == None or self.isHungry()
+        if self.isHungry() and self.prey != None:
             color = graphics.COLORS['red']
         elif self.isHungry():
             # Fade between colors as the Carnivore gets hungrier
@@ -241,6 +241,64 @@ class Carnivore(Animal):
             color = graphics.COLORS['blue']
         graphics.pygame.draw.circle(graphics.screen, color,
             [self.location.x, self.location.y], self.size)
+    
+    def doTurn(self):
+        super().doTurn()
+        
+        if self.shouldReproduce():
+            if LOGGING:
+                print(self.__class__.__name__, self, "reproducing")
+            self.lastReproductionAge = self.age
+            self.reproduce()
+        
+        # Continue chasing prey
+        if self.prey != None:
+            if not self.prey.isAlive:
+                self.prey = None
+            else:
+                self.destination = self.prey.location
+        
+        self.takeStep()
+        self.timeSinceLastEaten += 1
+        assert self.prey == None or self.isHungry()
+        if self.isHungry():
+            atePrey = self.tryToEat()
+            if atePrey:
+                # If the Carnivore successfully chased down and ate prey, now it needs
+                # something else to do.
+                self.destination = self.getNewDestination()
+            
+        if self.isHungry() and (self.prey == None or self.hasArrivedAtDestination()):
+            # Look for prey to chase down.
+            potentialPrey = self.findPrey()
+            if len(potentialPrey) > 0:
+                self.prey = potentialPrey[0]
+                self.destination = self.prey.location
+            else:
+                assert self.prey == None or self.hasArrivedAtDestina
+                self.prey = None
+                
+        self.dieIfStarved()
+                
+        if self.hasArrivedAtDestination():
+            self.destination = self.getNewDestination()
+            
+        if LOGGING:
+            print("Age of", self.__class__.__name__, "is", self.age)
+    
+    # If there is a prey Organism within range of this Carnivore, remove it from the world
+    # and set this Carnivore's timeSinceLastEaten to 0.
+    # Returns True if prey was successfully eaten, False otherwise.
+    def tryToEat(self):
+        nearbyOrganisms = getLivingOrganismsInRadiusWithType(world.organisms, self.location, self.maxEatRadius, Herbivore)
+        if len(nearbyOrganisms) > 0:
+            # Eat the unfortunate prey
+            nearbyOrganisms[0].isAlive = False
+            self.timeSinceLastEaten = 0
+            self.prey = None
+            return True
+        else:
+            return False
     
     # Returns a new location for the Herbivore.
     def getNewDestination(self):
