@@ -95,8 +95,13 @@ class Plant(Organism):
 class Animal(Organism):
     # Take one step in the direction of the Animal's current destination
     def takeStep(self):
-        self.location.x += self.speed if self.location.x < self.destination.x \
-                else -self.speed if self.location.x > self.destination.x else 0
+        if abs(self.location.x - self.destination.x) <= self.speed:
+            self.location.x = self.destination.x
+        else:
+            self.location.x += self.speed if self.location.x < self.destination.x \
+                    else -self.speed if self.location.x > self.destination.x else 0
+        if abs(self.location.y - self.destination.y) <= self.speed:
+            self.location.y = self.destination.y
         self.location.y += self.speed if self.location.y < self.destination.y \
                 else -self.speed if self.location.y > self.destination.y else 0
     
