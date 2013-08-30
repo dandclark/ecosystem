@@ -9,7 +9,7 @@
 
 import math
 
-LOGGING = True
+LOGGING = False
 
 class Location:
     def __init__(self, x=0, y=0):
@@ -42,3 +42,4 @@ def getLivingOrganismsInRadiusWithType(organisms, location, radius, type):
                 organism.location.distanceFrom(location) <= radius:
             organismsInRadius.append(organism)
     return organismsInRadius
+    

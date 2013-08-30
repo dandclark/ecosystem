@@ -155,6 +155,10 @@ class Herbivore(Animal):
             color = graphics.COLORS['blue']
         graphics.pygame.draw.circle(graphics.screen, color,
             [self.location.x, self.location.y], self.size)
+        graphics.drawStatusBar(Location(self.location.x, int(self.location.y - 1.5 * self.size)),
+                int(2.0 * self.size),
+                1.0 if self.timeSinceLastEaten < self.timeToHunger
+                else (self.timeToStarvation - self.timeSinceLastEaten) / (self.timeToStarvation - self.timeToHunger))
             
     def doTurn(self):
         super().doTurn()
@@ -257,6 +261,10 @@ class Carnivore(Animal):
             color = graphics.COLORS['blue']
         graphics.pygame.draw.circle(graphics.screen, color,
             [self.location.x, self.location.y], self.size)
+        graphics.drawStatusBar(Location(self.location.x, int(self.location.y - 1.5 * self.size)),
+                int(2.0 * self.size),
+                1.0 if self.timeSinceLastEaten < self.timeToHunger
+                else (self.timeToStarvation - self.timeSinceLastEaten) / (self.timeToStarvation - self.timeToHunger))
     
     def doTurn(self):
         super().doTurn()

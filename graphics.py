@@ -10,15 +10,18 @@
 import config
 import pygame
 import world
+from util import Location
 
 COLORS = {'black': (0, 0, 0),
         'white': (255, 255, 255),
         'red': (255, 0, 0),
         'green': (0, 255, 0),
         'blue': (0, 0, 255),
-        'grey': (100, 100, 100)}
+        'grey': (100, 100, 100),
+        'yellow': (255, 255, 0)}
 
-
+STATUS_BAR_HEIGHT = 3
+        
 # We'll store the graphics state as module-level variables.
 initialized = False
 screen = None
@@ -69,7 +72,6 @@ def handleEvents(world):
             
     return shouldContinue
     
-    
 def advanceClock():
     assert initialized, "Graphics should be initialized"
     assert not clock is None, "Should have a screen"
@@ -78,3 +80,14 @@ def advanceClock():
 def getTransitionColor(startColor, endColor, transitionPercentage):
     deltaColor = [end - start for end, start in zip(endColor, startColor)]
     return [start + delta * transitionPercentage for start, delta in zip(startColor, deltaColor)]
+
+# Draw a status bar centered at centerLocation.  width specifies the width of the
+# bar in pixels.  amoountFilled is a fraction from 0 to 1.
+def drawStatusBar(centerLocation, width, amountFilled):
+    topLeft = Location(int(centerLocation.x - width / 2.0),
+            int(centerLocation.y - STATUS_BAR_HEIGHT / 2.0))
+    pygame.draw.rect(screen, COLORS['grey'],
+            [topLeft.x, topLeft.y, width, STATUS_BAR_HEIGHT])
+    pygame.draw.rect(screen, COLORS['yellow'],
+            [topLeft.x, topLeft.y, int(width * amountFilled), STATUS_BAR_HEIGHT])
+            
