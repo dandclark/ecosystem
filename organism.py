@@ -11,6 +11,7 @@ from util import Location
 from util import LOGGING
 from util import getOrganismsInRadius
 from util import getLivingOrganismsInRadiusWithType
+from util import clip
 import graphics
 import random
 import world
@@ -119,6 +120,15 @@ class Animal(Organism):
         if self.timeSinceLastEaten >= self.timeToStarvation:
             assert self.isHungry()
             self.isAlive = False
+            
+    def drawStatusBars(self):
+        bottomStatusBarLocation = Location(self.location.x, int(self.location.y - 1.5 * self.size))
+        graphics.drawStatusBar(bottomStatusBarLocation,
+                int(2.0 * self.size),
+                clip((self.timeToStarvation - self.timeSinceLastEaten) / (self.timeToStarvation - self.timeToHunger), 0.0, 1.0))
+        graphics.drawStatusBar(Location(bottomStatusBarLocation.x, int(bottomStatusBarLocation.y - 1.2 * graphics.STATUS_BAR_HEIGHT)),
+                int(2.0 * self.size),
+                clip((self.timeToHunger - self.timeSinceLastEaten) / self.timeToHunger, 0.0, 1.0))
     
 class Herbivore(Animal):
     def __init__(self):
@@ -155,10 +165,7 @@ class Herbivore(Animal):
             color = graphics.COLORS['blue']
         graphics.pygame.draw.circle(graphics.screen, color,
             [self.location.x, self.location.y], self.size)
-        graphics.drawStatusBar(Location(self.location.x, int(self.location.y - 1.5 * self.size)),
-                int(2.0 * self.size),
-                1.0 if self.timeSinceLastEaten < self.timeToHunger
-                else (self.timeToStarvation - self.timeSinceLastEaten) / (self.timeToStarvation - self.timeToHunger))
+        self.drawStatusBars()
             
     def doTurn(self):
         super().doTurn()
@@ -261,10 +268,7 @@ class Carnivore(Animal):
             color = graphics.COLORS['blue']
         graphics.pygame.draw.circle(graphics.screen, color,
             [self.location.x, self.location.y], self.size)
-        graphics.drawStatusBar(Location(self.location.x, int(self.location.y - 1.5 * self.size)),
-                int(2.0 * self.size),
-                1.0 if self.timeSinceLastEaten < self.timeToHunger
-                else (self.timeToStarvation - self.timeSinceLastEaten) / (self.timeToStarvation - self.timeToHunger))
+        self.drawStatusBars()
     
     def doTurn(self):
         super().doTurn()

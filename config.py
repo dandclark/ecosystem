@@ -28,7 +28,7 @@ class Organism:
 class Plant(Organism):
     SIZE = 4
     MAX_TIME_BETWEEN_REPRODUCTION = 50000
-    REPRODUCTION_RADIUS = 20 # Radius within which children are created
+    REPRODUCTION_RADIUS = 30 # Radius within which children are created
     
 class Animal(Organism):
     # How many units of space in either direction can an Animal be away from its
@@ -43,7 +43,7 @@ class Herbivore(Animal):
     SIGHT_RADIUS = 50 # The radius within which the Herbivore can see food
     MAX_EAT_RADIUS = SIZE # The radius within which the Herbivore can reach food
 
-    MAX_TIME_BETWEEN_REPRODUCTION = 200000
+    MAX_TIME_BETWEEN_REPRODUCTION = 100000
     REPRODUCTION_RADIUS = 20 # Radius within which children are created
     
 class Carnivore(Animal):

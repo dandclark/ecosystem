@@ -43,3 +43,6 @@ def getLivingOrganismsInRadiusWithType(organisms, location, radius, type):
             organismsInRadius.append(organism)
     return organismsInRadius
     
+# Returns: min if value <= min, max if value >= max, else value.
+def clip(value, min, max):
+    return min if value <= min else max if value >= max else value

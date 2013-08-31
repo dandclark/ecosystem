@@ -84,6 +84,7 @@ def getTransitionColor(startColor, endColor, transitionPercentage):
 # Draw a status bar centered at centerLocation.  width specifies the width of the
 # bar in pixels.  amoountFilled is a fraction from 0 to 1.
 def drawStatusBar(centerLocation, width, amountFilled):
+    assert amountFilled >= 0.0 and amountFilled <= 1.0
     topLeft = Location(int(centerLocation.x - width / 2.0),
             int(centerLocation.y - STATUS_BAR_HEIGHT / 2.0))
     pygame.draw.rect(screen, COLORS['grey'],
