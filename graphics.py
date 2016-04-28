@@ -18,10 +18,16 @@ COLORS = {'black': (0, 0, 0),
         'green': (0, 255, 0),
         'blue': (0, 0, 255),
         'grey': (100, 100, 100),
+        'darkGrey': (50, 50, 50),
         'yellow': (255, 255, 0)}
 
 STATUS_BAR_HEIGHT = 3
-        
+WORLD_SIZE = config.WORLD_SIZE
+STATUS_SECTION_SIZE = config.STATUS_SECTION_SIZE
+
+ORGANISM_STATS_LEFT = WORLD_SIZE[0] + 50
+ORGANISM_STATS_TOP = 120
+ 
 # We'll store the graphics state as module-level variables.
 initialized = False
 screen = None
@@ -35,7 +41,7 @@ def initialize():
         # Set up the screen
         screen = pygame.display.set_mode(config.SCREEN_SIZE)
         pygame.display.set_caption("Ecosystem")
-        
+
         clock = pygame.time.Clock()
         
         initialized = True
@@ -44,11 +50,22 @@ def initialize():
         raise Exception("Graphics should only be initialized once")
         
 def quit():
-    print("Goodbye!")
+    print("Exiting...")
     if initialized:
         pygame.quit()
     
-    
+def drawMenu():
+    # Draw divider between main screen and menu 
+    pygame.draw.line(screen, COLORS['darkGrey'], (WORLD_SIZE[0], 0),
+        (WORLD_SIZE[0], WORLD_SIZE[1]), 3)
+
+    pygame.draw.circle(screen, COLORS['green'],
+        [ORGANISM_STATS_LEFT, ORGANISM_STATS_TOP], config.Plant.SIZE)
+    pygame.draw.circle(screen, COLORS['blue'],
+        [ORGANISM_STATS_LEFT, ORGANISM_STATS_TOP * 2], config.Herbivore.SIZE)
+    pygame.draw.circle(screen, COLORS['blue'],
+        [ORGANISM_STATS_LEFT, ORGANISM_STATS_TOP * 3], config.Carnivore.SIZE)
+ 
 def drawOrganisms():
     for organism in world.organisms:
         organism.draw()
@@ -59,7 +76,10 @@ def draw():
     screen.fill(COLORS['white'])
     
     drawOrganisms()
-    
+  
+    # @todo Drawn menu on separate screen so we only have to do it once? 
+    drawMenu()
+ 
     pygame.display.flip()
 
 # Handle user events.  Returns true if process should continue, false otherwise

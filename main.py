@@ -1,3 +1,4 @@
+#!/usr/bin/python
 #
 #    Dan Clark
 #    thedanclark@gmail.com
@@ -15,7 +16,7 @@ import organism
 from util import LOGGING
 
 if __name__ == "__main__":
-    print("Hello, world")
+    print("Starting Ecosystem...")
     
     graphics.initialize()
     
