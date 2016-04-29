@@ -8,6 +8,7 @@
 #
 
 import config
+import organism
 import pygame
 import world
 from util import Location
@@ -31,15 +32,19 @@ ORGANISM_STATS_TOP = 120
 # We'll store the graphics state as module-level variables.
 initialized = False
 screen = None
+organismCountFont = None
 clock = None
 
 def initialize():
-    global initialized, screen, clock
+    global initialized, screen, organismCountFont, clock
     if not initialized:
         pygame.init()
         
         # Set up the screen
         screen = pygame.display.set_mode(config.SCREEN_SIZE)
+        organismCountFont = pygame.font.SysFont("monospace", 60)
+
+        # Set text on window top bar
         pygame.display.set_caption("Ecosystem")
 
         clock = pygame.time.Clock()
@@ -59,12 +64,34 @@ def drawMenu():
     pygame.draw.line(screen, COLORS['darkGrey'], (WORLD_SIZE[0], 0),
         (WORLD_SIZE[0], WORLD_SIZE[1]), 3)
 
+    # Draw organism menu icons
     pygame.draw.circle(screen, COLORS['green'],
-        [ORGANISM_STATS_LEFT, ORGANISM_STATS_TOP], config.Plant.SIZE)
+        [ORGANISM_STATS_LEFT, ORGANISM_STATS_TOP], config.Plant.SIZE * 2)
     pygame.draw.circle(screen, COLORS['blue'],
-        [ORGANISM_STATS_LEFT, ORGANISM_STATS_TOP * 2], config.Herbivore.SIZE)
+        [ORGANISM_STATS_LEFT, ORGANISM_STATS_TOP * 2], config.Herbivore.SIZE * 2)
     pygame.draw.circle(screen, COLORS['blue'],
-        [ORGANISM_STATS_LEFT, ORGANISM_STATS_TOP * 3], config.Carnivore.SIZE)
+        [ORGANISM_STATS_LEFT, ORGANISM_STATS_TOP * 3], config.Carnivore.SIZE * 2)
+
+    # Tally the count of each organism
+    numPlants = 0
+    numHerbivores = 0
+    numCarnivores = 0
+    for theOrganism in world.organisms:
+        if isinstance(theOrganism, organism.Plant):
+            numPlants += 1
+        elif isinstance(theOrganism, organism.Herbivore):
+            numHerbivores += 1
+        else:
+            assert isinstance(theOrganism, organism.Carnivore)
+            numCarnivores += 1
+
+    # Draw the count of each organism
+    plantCountText = organismCountFont.render(str(numPlants), 0, COLORS['black'], COLORS['white']) 
+    screen.blit(plantCountText, [ORGANISM_STATS_LEFT + 30, ORGANISM_STATS_TOP - 20])
+    herbivoreCountText = organismCountFont.render(str(numHerbivores), 0, COLORS['black'], COLORS['white']) 
+    screen.blit(herbivoreCountText, [ORGANISM_STATS_LEFT + 30, (ORGANISM_STATS_TOP * 2) - 20])
+    carnivoreCountText = organismCountFont.render(str(numCarnivores), 0, COLORS['black'], COLORS['white']) 
+    screen.blit(carnivoreCountText, [ORGANISM_STATS_LEFT + 30, (ORGANISM_STATS_TOP * 3) - 20])
  
 def drawOrganisms():
     for organism in world.organisms:
