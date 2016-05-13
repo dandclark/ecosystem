@@ -28,12 +28,14 @@ WORLD_SIZE = config.WORLD_SIZE
 STATUS_SECTION_SIZE = config.STATUS_SECTION_SIZE
 
 ORGANISM_STATS_LEFT = WORLD_SIZE[0] + 50
-ORGANISM_STATS_TOP = 120
+ORGANISM_STATS_TOP = 80
+ORGANISM_STATS_PADDING_TOP = 130
 
-ORGANISM_ADD_BUTTON_LEFT = WORLD_SIZE[0] + 25
-ORGANISM_ADD_BUTTON_TOP = 140
-ORGANISM_ADD_BUTTON_WIDTH = 40
-ORGANISM_ADD_BUTTON_HEIGHT = 30
+ORGANISM_ADD_BUTTON_LEFT = WORLD_SIZE[0] + 55
+ORGANISM_ADD_BUTTON_TOP = 120
+ORGANISM_ADD_BUTTON_PADDING_TOP = 130
+ORGANISM_ADD_BUTTON_WIDTH = 70
+ORGANISM_ADD_BUTTON_HEIGHT = 50
  
 # We'll store the graphics state as module-level variables.
 initialized = False
@@ -57,7 +59,11 @@ def initialize():
         clock = pygame.time.Clock()
     
         plantButtonRect = pygame.Rect(ORGANISM_ADD_BUTTON_LEFT, ORGANISM_ADD_BUTTON_TOP, ORGANISM_ADD_BUTTON_WIDTH, ORGANISM_ADD_BUTTON_HEIGHT)
-        buttons.append(Button(plantButtonRect, testButton))
+        herbivoreButtonRect = pygame.Rect(ORGANISM_ADD_BUTTON_LEFT, ORGANISM_ADD_BUTTON_TOP + ORGANISM_ADD_BUTTON_PADDING_TOP, ORGANISM_ADD_BUTTON_WIDTH, ORGANISM_ADD_BUTTON_HEIGHT)
+        carnivoreButtonRect = pygame.Rect(ORGANISM_ADD_BUTTON_LEFT, ORGANISM_ADD_BUTTON_TOP + 2 * ORGANISM_ADD_BUTTON_PADDING_TOP, ORGANISM_ADD_BUTTON_WIDTH, ORGANISM_ADD_BUTTON_HEIGHT)
+        buttons.append(Button(plantButtonRect, lambda: print("Plant +1 button clicked")))
+        buttons.append(Button(herbivoreButtonRect, lambda: print("Herbivore +1 button clicked")))
+        buttons.append(Button(carnivoreButtonRect, lambda: print("Carnivore +1 button clicked")))
         
         initialized = True
         
@@ -78,9 +84,9 @@ def drawMenu():
     pygame.draw.circle(screen, COLORS['green'],
         [ORGANISM_STATS_LEFT, ORGANISM_STATS_TOP], config.Plant.SIZE * 2)
     pygame.draw.circle(screen, COLORS['blue'],
-        [ORGANISM_STATS_LEFT, ORGANISM_STATS_TOP * 2], config.Herbivore.SIZE * 2)
+        [ORGANISM_STATS_LEFT, ORGANISM_STATS_TOP + ORGANISM_STATS_PADDING_TOP], config.Herbivore.SIZE * 2)
     pygame.draw.circle(screen, COLORS['blue'],
-        [ORGANISM_STATS_LEFT, ORGANISM_STATS_TOP * 3], config.Carnivore.SIZE * 2)
+        [ORGANISM_STATS_LEFT, ORGANISM_STATS_TOP + 2 * ORGANISM_STATS_PADDING_TOP], config.Carnivore.SIZE * 2)
 
     # Tally the count of each organism
     numPlants = 0
@@ -99,9 +105,9 @@ def drawMenu():
     plantCountText = organismCountFont.render(str(numPlants), 0, COLORS['black'], COLORS['white']) 
     screen.blit(plantCountText, [ORGANISM_STATS_LEFT + 30, ORGANISM_STATS_TOP - 20])
     herbivoreCountText = organismCountFont.render(str(numHerbivores), 0, COLORS['black'], COLORS['white']) 
-    screen.blit(herbivoreCountText, [ORGANISM_STATS_LEFT + 30, (ORGANISM_STATS_TOP * 2) - 20])
+    screen.blit(herbivoreCountText, [ORGANISM_STATS_LEFT + 30, (ORGANISM_STATS_TOP + ORGANISM_STATS_PADDING_TOP) - 20])
     carnivoreCountText = organismCountFont.render(str(numCarnivores), 0, COLORS['black'], COLORS['white']) 
-    screen.blit(carnivoreCountText, [ORGANISM_STATS_LEFT + 30, (ORGANISM_STATS_TOP * 3) - 20])
+    screen.blit(carnivoreCountText, [ORGANISM_STATS_LEFT + 30, (ORGANISM_STATS_TOP + 2 * ORGANISM_STATS_PADDING_TOP) - 20])
 
     for button in buttons:
         for button in buttons:

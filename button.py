@@ -12,20 +12,19 @@ class Button:
         self.isClicked = False
 
     def getEvent(self, event):
-        print("Button got event", event)
+        #print("Button got event", event)
         if self.isClicked:
             if (event.type == pygame.MOUSEBUTTONUP and event.button == 1):
                 # Release the click whether or not the mouse was released within
                 # the rect of the button.
-
                 self.isClicked = False
+
                 if self.rect.collidepoint(event.pos):
-                    print("Button depressed")
+                    self.onClick()
         else: # !self.isClicked
             if (event.type == pygame.MOUSEBUTTONDOWN and
                     event.button == 1 and
                     self.rect.collidepoint(event.pos)):
-                print("Button clicked")
                 self.isClicked = True
     def draw(self, screen):
         isHovered = self.rect.collidepoint(pygame.mouse.get_pos())
