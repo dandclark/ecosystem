@@ -7,6 +7,7 @@
 #    Ecosystem
 #
 
+from button import Button
 import config
 import organism
 import pygame
@@ -28,15 +29,21 @@ STATUS_SECTION_SIZE = config.STATUS_SECTION_SIZE
 
 ORGANISM_STATS_LEFT = WORLD_SIZE[0] + 50
 ORGANISM_STATS_TOP = 120
+
+ORGANISM_ADD_BUTTON_LEFT = WORLD_SIZE[0] + 25
+ORGANISM_ADD_BUTTON_TOP = 140
+ORGANISM_ADD_BUTTON_WIDTH = 40
+ORGANISM_ADD_BUTTON_HEIGHT = 30
  
 # We'll store the graphics state as module-level variables.
 initialized = False
 screen = None
 organismCountFont = None
 clock = None
+buttons = []
 
 def initialize():
-    global initialized, screen, organismCountFont, clock
+    global initialized, screen, organismCountFont, clock, buttons
     if not initialized:
         pygame.init()
         
@@ -48,6 +55,9 @@ def initialize():
         pygame.display.set_caption("Ecosystem")
 
         clock = pygame.time.Clock()
+    
+        plantButtonRect = pygame.Rect(ORGANISM_ADD_BUTTON_LEFT, ORGANISM_ADD_BUTTON_TOP, ORGANISM_ADD_BUTTON_WIDTH, ORGANISM_ADD_BUTTON_HEIGHT)
+        buttons.append(Button(plantButtonRect, testButton))
         
         initialized = True
         
@@ -92,6 +102,15 @@ def drawMenu():
     screen.blit(herbivoreCountText, [ORGANISM_STATS_LEFT + 30, (ORGANISM_STATS_TOP * 2) - 20])
     carnivoreCountText = organismCountFont.render(str(numCarnivores), 0, COLORS['black'], COLORS['white']) 
     screen.blit(carnivoreCountText, [ORGANISM_STATS_LEFT + 30, (ORGANISM_STATS_TOP * 3) - 20])
+
+    for button in buttons:
+        for button in buttons:
+            # TODO: Get events
+            button.draw(screen) 
+
+
+def testButton():
+    print("Button clicked")
  
 def drawOrganisms():
     for organism in world.organisms:
@@ -116,6 +135,9 @@ def handleEvents(world):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             shouldContinue = False
+        elif event.type == pygame.MOUSEBUTTONUP or event.type == pygame.MOUSEBUTTONDOWN:
+            for button in buttons:
+                button.getEvent(event)
             
     return shouldContinue
     
