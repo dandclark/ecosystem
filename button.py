@@ -13,7 +13,6 @@ class Button:
         self.text = text
 
     def getEvent(self, event):
-        #print("Button got event", event)
         if self.isClicked:
             if (event.type == pygame.MOUSEBUTTONUP and event.button == 1):
                 # Release the click whether or not the mouse was released within
