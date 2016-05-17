@@ -61,9 +61,9 @@ def initialize():
         plantButtonRect = pygame.Rect(ORGANISM_ADD_BUTTON_LEFT, ORGANISM_ADD_BUTTON_TOP, ORGANISM_ADD_BUTTON_WIDTH, ORGANISM_ADD_BUTTON_HEIGHT)
         herbivoreButtonRect = pygame.Rect(ORGANISM_ADD_BUTTON_LEFT, ORGANISM_ADD_BUTTON_TOP + ORGANISM_ADD_BUTTON_PADDING_TOP, ORGANISM_ADD_BUTTON_WIDTH, ORGANISM_ADD_BUTTON_HEIGHT)
         carnivoreButtonRect = pygame.Rect(ORGANISM_ADD_BUTTON_LEFT, ORGANISM_ADD_BUTTON_TOP + 2 * ORGANISM_ADD_BUTTON_PADDING_TOP, ORGANISM_ADD_BUTTON_WIDTH, ORGANISM_ADD_BUTTON_HEIGHT)
-        buttons.append(Button(plantButtonRect, lambda: print("Plant +1 button clicked")))
-        buttons.append(Button(herbivoreButtonRect, lambda: print("Herbivore +1 button clicked")))
-        buttons.append(Button(carnivoreButtonRect, lambda: print("Carnivore +1 button clicked")))
+        buttons.append(Button(plantButtonRect, "+1", print, "Plant +1 button clicked"))
+        buttons.append(Button(herbivoreButtonRect, "+1", print, "Herbivore +1 button clicked"))
+        buttons.append(Button(carnivoreButtonRect, "+1", print, "Carnivore +1 button clicked"))
         
         initialized = True
         

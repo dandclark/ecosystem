@@ -6,10 +6,11 @@ HOVERED_COLOR = (140, 140, 140)
 CLICKED_COLOR = (100, 100, 100)
 
 class Button:
-    def __init__(self, rect, onClick):
+    def __init__(self, rect, text, *onClick):
         self.rect = rect
         self.onClick = onClick
         self.isClicked = False
+        self.text = text
 
     def getEvent(self, event):
         #print("Button got event", event)
@@ -20,7 +21,7 @@ class Button:
                 self.isClicked = False
 
                 if self.rect.collidepoint(event.pos):
-                    self.onClick()
+                    self.onClick[0](*self.onClick[1:])
         else: # !self.isClicked
             if (event.type == pygame.MOUSEBUTTONDOWN and
                     event.button == 1 and
@@ -34,3 +35,10 @@ class Button:
         else:
             colorForDraw = DEFAULT_COLOR
         pygame.draw.rect(screen, colorForDraw, self.rect)
+
+        # Draw the button's text
+        font = pygame.font.Font(None, 60)
+        textSurface = font.render(self.text, True, (0,0,0)) 
+        textRect = textSurface.get_rect(center=self.rect.center)
+        screen.blit(textSurface, textRect)
+
