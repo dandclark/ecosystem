@@ -43,12 +43,9 @@ def randomLocationInCircle(center, radius):
     randomLocation.y = max(0, min(config.WORLD_SIZE[1], randomLocation.y))
     return randomLocation
     
-# @todo[DDC] spawnPlants and spawnAnimals should be refactored.  There's going to be
-# a lot more of these...
-
-def spawnOrganisms(organismType, numberToSpawn):
+def spawnOrganisms(organismType, numberToSpawn, createWithSpawnRing):
     for i in range(numberToSpawn):
-        newOrganism = organismType()
+        newOrganism = organismType(createWithSpawnRing)
         while True:
             potentialLocation = randomLocation()
             if LOGGING:
@@ -61,42 +58,6 @@ def spawnOrganisms(organismType, numberToSpawn):
         organisms.append(newOrganism)
     if LOGGING:
         print("Spawned", numberToSpawn, organismType.__name__ + "s")
-
-# Spawn the specified number of Plants
-def spawnPlants(numberToSpawn):
-    for i in range(numberToSpawn):
-        newPlant = organism.Plant()
-        while True:
-            potentialLocation = randomLocation()
-            if LOGGING:
-                print("Attempting to spawn at", potentialLocation)
-            if canFit(newPlant, potentialLocation):
-                newPlant.location = potentialLocation
-                break
-        if LOGGING:
-            print("Spawning new plant at", newPlant.location)
-        organisms.append(newPlant)
-    if LOGGING:
-        print("Spawned", numberToSpawn, "Plants")
-    
-# Spawn the specified number of Herbivores
-def spawnHerbivores(numberToSpawn):
-    for i in range(numberToSpawn):
-        newHerbivore = organism.Herbivore()
-        while True:
-            potentialLocation = randomLocation()
-            if LOGGING:
-                print("Attempting to spawn at", potentialLocation)
-            if canFit(newHerbivore, potentialLocation):
-                newHerbivore.location = potentialLocation
-                break
-            elif LOGGING:
-                print("Can't draw here; space is occupied")
-        if LOGGING:
-            print("Spawning new Herbivore at", newHerbivore.location)
-        organisms.append(newHerbivore)
-    if LOGGING:
-        print("Spawned", numberToSpawn, "Herbivores")
         
 # Remove all dead organisms from the organism array
 # @consider doing this differently.  We're doing a full copy of the Herbivore array

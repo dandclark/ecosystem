@@ -20,16 +20,30 @@ import abc # For abstract base class
 
 
 class Organism(metaclass=abc.ABCMeta):
-    def __init__(self):
+    def __init__(self, createWithSpawnRing):
         self.isAlive = True
         self.age = 0
         self.location = Location(0,0)
+        self.hasSpawnRing = createWithSpawnRing
+        self.spawnRingRadius = config.Organism.SPAWN_RING_STARTING_RADIUS
         
     # Draw the Organism
     @abc.abstractmethod
     def draw(self):
         pass
-        
+      
+    # Draw an expanding ring around a newly spawned Organism to highlight
+    # its location 
+    def drawSpawnRing(self, screen):
+        if self.hasSpawnRing:
+            # TODO: Would it look better if this faded as it expanded?
+            graphics.pygame.draw.circle(
+                    screen,
+                    graphics.COLORS['orange'],
+                    [self.location.x, self.location.y],
+                    self.spawnRingRadius,
+                    config.Organism.SPAWN_RING_WIDTH)
+ 
     # Returns an instance of the Organism (a non-abstract subclass).
     # @todo Is there a more pythonic way to do this?
     @abc.abstractmethod
@@ -39,6 +53,12 @@ class Organism(metaclass=abc.ABCMeta):
     # Run one unit of time for the organism
     def doTurn(self):
         self.age += 1
+        if self.hasSpawnRing: 
+            if self.spawnRingRadius >= config.Organism.SPAWN_RING_MAX_RADIUS:
+                self.hasSpawnRing = False
+                self.spawnRingRadius = 0 
+            else:
+                self.spawnRingRadius += config.Organism.SPAWN_RING_RADIUS_INCREMENT
         
         # Returns true if should reproduce this turn, false othewise.
     def shouldReproduce(self):
@@ -65,8 +85,8 @@ class Organism(metaclass=abc.ABCMeta):
         
         
 class Plant(Organism):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, createWithSpawnRing):
+        super().__init__(createWithSpawnRing)
         self.size = config.Plant.SIZE
         self.lastReproductionAge = 0
         self.maxTimeBetweenReproduction = config.Plant.MAX_TIME_BETWEEN_REPRODUCTION
@@ -75,6 +95,7 @@ class Plant(Organism):
         
     def draw(self):
         assert self.isAlive
+        self.drawSpawnRing(graphics.screen)
         graphics.pygame.draw.circle(graphics.screen, graphics.COLORS['green'],
             [self.location.x, self.location.y], self.size)
             
@@ -90,7 +111,7 @@ class Plant(Organism):
             self.reproduce()
         
     def createOffspring(self):
-        return Plant()
+        return Plant(False)
 
         
 class Animal(Organism):
@@ -131,8 +152,8 @@ class Animal(Organism):
                 clip((self.timeToHunger - self.timeSinceLastEaten) / self.timeToHunger, 0.0, 1.0))
     
 class Herbivore(Animal):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, createWithSpawnRing):
+        super().__init__(createWithSpawnRing)
         self.size = config.Herbivore.SIZE
         self.speed = config.Herbivore.SPEED
         self.destination = self.getNewDestination()
@@ -163,6 +184,9 @@ class Herbivore(Animal):
                     float(self.timeSinceLastEaten) / self.timeToStarvation)
         else:
             color = graphics.COLORS['blue']
+        
+        self.drawSpawnRing(graphics.screen)
+        
         graphics.pygame.draw.circle(graphics.screen, color,
             [self.location.x, self.location.y], self.size)
         self.drawStatusBars()
@@ -231,11 +255,11 @@ class Herbivore(Animal):
             return False
     
     def createOffspring(self):
-        return Herbivore()
+        return Herbivore(False)
         
 class Carnivore(Animal):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, createWithSpawnRing):
+        super().__init__(createWithSpawnRing)
         self.size = config.Carnivore.SIZE
         self.speed = config.Carnivore.SPEED
         self.destination = self.getNewDestination()
@@ -254,6 +278,9 @@ class Carnivore(Animal):
     def draw(self):
         assert self.isAlive
         assert self.prey is None or self.isHungry()
+        
+        self.drawSpawnRing(graphics.screen)
+        
         if self.isHungry() and not self.prey is None:
             color = graphics.COLORS['blue']
             graphics.pygame.draw.line(graphics.screen, graphics.COLORS['red'],
@@ -337,5 +364,5 @@ class Carnivore(Animal):
         return getLivingOrganismsInRadiusWithType(world.organisms, self.location, self.sightRadius, Herbivore)
     
     def createOffspring(self):
-        return Carnivore()
+        return Carnivore(False)
     

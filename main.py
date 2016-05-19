@@ -20,9 +20,9 @@ if __name__ == "__main__":
     
     graphics.initialize()
     
-    world.spawnPlants(config.NUM_STARTING_PLANTS)
-    world.spawnHerbivores(config.NUM_STARTING_HERBIVORES)
-    world.spawnOrganisms(organism.Carnivore, config.NUM_STARTING_CARNIVORES)
+    world.spawnOrganisms(organism.Plant, config.NUM_STARTING_PLANTS, False)
+    world.spawnOrganisms(organism.Herbivore, config.NUM_STARTING_HERBIVORES, False)
+    world.spawnOrganisms(organism.Carnivore, config.NUM_STARTING_CARNIVORES, False)
     
     shouldContinue = True
     
@@ -38,3 +38,4 @@ if __name__ == "__main__":
         # print("In main game loop")
         
     graphics.quit()
+

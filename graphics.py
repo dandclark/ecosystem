@@ -21,7 +21,8 @@ COLORS = {'black': (0, 0, 0),
         'blue': (0, 0, 255),
         'grey': (100, 100, 100),
         'darkGrey': (50, 50, 50),
-        'yellow': (255, 255, 0)}
+        'yellow': (255, 255, 0),
+        'orange': (255, 165, 0)}
 
 STATUS_BAR_HEIGHT = 3
 WORLD_SIZE = config.WORLD_SIZE
@@ -61,9 +62,9 @@ def initialize():
         plantButtonRect = pygame.Rect(ORGANISM_ADD_BUTTON_LEFT, ORGANISM_ADD_BUTTON_TOP, ORGANISM_ADD_BUTTON_WIDTH, ORGANISM_ADD_BUTTON_HEIGHT)
         herbivoreButtonRect = pygame.Rect(ORGANISM_ADD_BUTTON_LEFT, ORGANISM_ADD_BUTTON_TOP + ORGANISM_ADD_BUTTON_PADDING_TOP, ORGANISM_ADD_BUTTON_WIDTH, ORGANISM_ADD_BUTTON_HEIGHT)
         carnivoreButtonRect = pygame.Rect(ORGANISM_ADD_BUTTON_LEFT, ORGANISM_ADD_BUTTON_TOP + 2 * ORGANISM_ADD_BUTTON_PADDING_TOP, ORGANISM_ADD_BUTTON_WIDTH, ORGANISM_ADD_BUTTON_HEIGHT)
-        buttons.append(Button(plantButtonRect, "+1", world.spawnOrganisms, organism.Plant, 1))
-        buttons.append(Button(herbivoreButtonRect, "+1", world.spawnOrganisms, organism.Herbivore, 1))
-        buttons.append(Button(carnivoreButtonRect, "+1", world.spawnOrganisms, organism.Carnivore, 1))
+        buttons.append(Button(plantButtonRect, "+1", world.spawnOrganisms, organism.Plant, 1, True))
+        buttons.append(Button(herbivoreButtonRect, "+1", world.spawnOrganisms, organism.Herbivore, 1, True))
+        buttons.append(Button(carnivoreButtonRect, "+1", world.spawnOrganisms, organism.Carnivore, 1, True))
         
         initialized = True
         
@@ -111,7 +112,6 @@ def drawMenu():
 
     for button in buttons:
         for button in buttons:
-            # TODO: Get events
             button.draw(screen) 
 
 
